@@ -7,3 +7,5 @@ to self.card_list after it is duplicated and shuffled so there are
 25 numbers same as the numbers of squares. This is number 12 and
 is never called for. The middle square has no cover and is used to signal
 if the tiles are a good match or not.
+
+![image](https://user-images.githubusercontent.com/34530520/182294162-68a92946-ff9a-459a-ae1e-acab332aa841.png)
