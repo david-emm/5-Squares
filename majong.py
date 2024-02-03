@@ -155,7 +155,7 @@ class Game:
     @staticmethod
     def change_places(alist, tile_one, tile_two):
         """Change tile position randomly."""
-        if random.randint(1, 51) // 2 == 0: # Only make change randomly
+        if random.randint(1,101) % 3 == 0: # Only make change randomly
             alist[tile_one], alist[tile_two] = alist[tile_two], alist[tile_one]
         return alist
 
@@ -334,6 +334,7 @@ class Game:
                     waiting = False
                 if event.type == pg.MOUSEBUTTONDOWN:
                     waiting = False
+                    self.playing = True
 
     def draw_text(self, text, size, color, posy):
         """Now add text to display."""
