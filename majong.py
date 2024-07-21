@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 
 """
-Python / Pygame exercise to build a tiled memory game.
-
-This game is a 5 x 5 matrix - 25 squares. We need only 24.
-The middle square (200, 200) is taken out of the self.tile_list
-leaving only 24 entries. However an extra number has to be added
-to self.card_list after it is duplicated and shuffled so there are
-25 numbers same as the numbers of squares. This is number 12 and
-is never called for. The middle square has no cover and is used to signal
-if the tiles are a good match or not.
+A Python/Pygame exercise to build a tiled memory game. The game is
+to match 12 different tiles. The game is played on a 5 x 5 matrix
+25 squares. We need only 24. So the middle square is taken out of
+play in the the self.tile_list leaving only 24 entries. However an
+extra number has to be added to the self.card_list after it is
+duplicated and shuffled so there are 25 numbers, same as the number
+of squares. This is number 12 and is never used. This middle square
+has no cover and is used to signal if the guessed tiles are a good
+match or not.
 """
-# pylint: disable=no-member
 
 import os
 from os import path
 import random
 import time
-import pygame as pg  # type: ignore
-
+import pygame as pg
 
 # These are the initial constants.
 WHITE = (255, 255, 255)
@@ -31,13 +29,17 @@ TIME_FILE = "time.txt"
 COVER_LAYER = 1
 CARD_LAYER = 2
 
-# pylint: disable=too-few-public-methods
 
 class Card(pg.sprite.Sprite):
-    """Establish Card class."""
+    """Establish Card class.
+       Card images are a sub-set of majong tile
+       fronts cut square to 100 x 100 pixels.
+       These images are stored in the img sub-directory.
+       Three sets are images are available if you want to
+       change the card images."
+    """
 
-    def __init__(self, game, tile, tile_pos):
-        """Set up card face up display."""
+    def __init__(self, game, tile, tile_pos):  # Set up card face up display
         super(Card, self).__init__()
         self.groups = game.all_sprites, game.cards
         self._layer = CARD_LAYER
@@ -50,7 +52,13 @@ class Card(pg.sprite.Sprite):
 
 
 class Cover(pg.sprite.Sprite):
-    """Establish Cover class."""
+    """Establish Cover class.
+       Images are a sub-set of back images
+       cut square to 100 x 100 pixels. These
+       are stored in the img sub-directory.
+       Special back images for the middle square
+       are also here.
+    """
 
     def __init__(self, game, tile, tile_pos):
         """Set up back covers."""
@@ -68,8 +76,7 @@ class Cover(pg.sprite.Sprite):
 class Game:
     """Establish Game class."""
 
-    def __init__(self):
-        """Get play area size and initilise."""
+    def __init__(self):  # Get play area size and initilise
         pg.init()
         pg.mouse.set_visible(True)
         self.font_name = pg.font.match_font(FONT_NAME)
@@ -77,7 +84,7 @@ class Game:
         self.screen = pg.display.set_mode(
             (H_TILESIZE * 5, V_TILESIZE * 5))
         pg.display.set_caption('Match the Cards')
-               # Some initial settings.
+        # Some initial settings.
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.cards = pg.sprite.Group()
         self.covers = pg.sprite.Group()
@@ -104,8 +111,7 @@ class Game:
         self.card_list = []
         self.load_images()
 
-    def load_images(self):
-        """Load all game graphics."""
+    def load_images(self):  # Load all game graphics
         folder = path.join(path.dirname(__file__), 'img')
         try:
             self.dir = path.dirname(__file__)
@@ -138,8 +144,7 @@ class Game:
             print("OS error: {0}".format(err))
 
     @staticmethod
-    def get_tile(pos):
-        """Get tile number from mouse position."""
+    def get_tile(pos):  # Get tile number from mouse position
         col = 0
         row = 0
         tile_num = 0, 0
@@ -153,44 +158,37 @@ class Game:
         return tile_num
 
     @staticmethod
-    def change_places(alist, tile_one, tile_two):
-        """Change tile position randomly."""
-        if random.randint(1,101) % 3 == 0: # Only make change randomly
+    def change_places(alist, tile_one, tile_two):  # Only make change randomly
+        if random.randint(1, 101) % 3 == 0:
             alist[tile_one], alist[tile_two] = alist[tile_two], alist[tile_one]
         return alist
 
-
     def new(self):
-        """Initialise all groups."""
-        # Now create card list of 12 numbers, duplicate it and shuffle.
+        # Create th card list of 12 numbers, duplicate it and shuffle.
         self.card_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
         list2 = self.card_list.copy()
         self.card_list.extend(list2)
         random.shuffle(self.card_list)
-        # Now add in tthe extra number (12) in the middle of the list.
+        # Add in tthe extra number (12) in the middle of the list.
         self.card_list.insert(12, 12)
         for i in range(5):
             for j in range(5):
-                # Place image on the the middle tile.
-                if i == 2 and j == 2:
+                if i == 2 and j == 2:  # Place image on the the middle tile
                     tile_pos = i * 100, j * 100
                     Cover(self, self.em_images[2], tile_pos)
-                else:
-                    # Create list of playable tiles.
+                else:  # Create list of playable tiles
                     self.tile_list.append((i, j))
                     tile_pos = i * 100, j * 100
                     Cover(self, self.back_images[0], tile_pos)
         self.run()
 
-    def run(self):
-        """Run main game loop."""
+    def run(self):  # Run main game loop
         while self.playing:
             self.events()
             self.update()
             self.draw()
 
-    def events(self):
-        """First check for end game events."""
+    def events(self):  # First check for end game events
         for event in pg.event.get():
             if (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
                     or event.type == pg.QUIT):
@@ -225,8 +223,7 @@ class Game:
                         self.tile_list.append(self.tile_alpha)
                         self.mouse_click += 1
 
-    def update(self):
-        """Update main game loop."""
+    def update(self):  # Update main game loop
         if self.card_beta is not None and self.show is True:
             if self.card_alpha == self.card_beta:
                 # Change middle tile image and draw it before continuing.
@@ -268,16 +265,14 @@ class Game:
                     self.sad = None
                     self.show = False
 
-    def draw(self):
-        """Draw game screen."""
+    def draw(self):  # Draw game screen
         self.screen.fill(BLACK)
         if self.card_beta is not None:
             self.show = True
         self.all_sprites.draw(self.screen)
         pg.display.flip()
 
-    def show_start_screen(self):
-        """Game splash/start screen."""
+    def show_start_screen(self):  # Game splash/start screen
         self.screen.fill(BLACK)
         self.screen.blit(
             self.back_images[0], (H_TILESIZE * 5 // 2 - 64, 40))
@@ -299,7 +294,7 @@ class Game:
         self.wait_for_key()
 
     def show_end_screen(self):
-        """Draw game over screen and show for 5 seconds."""
+        # Draw game over screen and show for 5 seconds
         if not self.running:
             return
         self.screen.fill(BLACK)
@@ -324,7 +319,7 @@ class Game:
         self.wait_for_key()
 
     def wait_for_key(self):
-        """Wait for key press to start and end game."""
+        # Wait for key press to start and end game
         waiting = True
         while waiting:
             for event in pg.event.get():
@@ -337,7 +332,7 @@ class Game:
                     self.playing = True
 
     def draw_text(self, text, size, color, posy):
-        """Now add text to display."""
+        # Add text to display
         posx = int(H_TILESIZE * 5 // 2)
         posy = int(posy)
         size = int(size)
@@ -348,12 +343,10 @@ class Game:
         self.screen.blit(text_surface, text_rect)
 
 
-# Create the game object and start.
-gm = Game()
+gm = Game()  # Create the game object and start
 gm.show_start_screen()
 while gm.running:
     gm.new()
     gm.show_end_screen()
 
-# End game.
-pg.quit()
+pg.quit()  # End game
